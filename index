@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Global ERP – Demo | © Gayan Gunasekara</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Firebase CDN (Compat for single-file simplicity) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Animation -->
+  <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #0f2027, #203a43, #2c5364);
+      color: #fff;
+    }
+    header {
+      padding: 20px;
+      text-align: center;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+    }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 30px;
+    }
+    .card {
+      background: rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      transition: transform 0.3s;
+    }
+    .card:hover { transform: translateY(-8px) scale(1.02); }
+
+    button {
+      background: linear-gradient(135deg,#00c6ff,#0072ff);
+      border: none;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: none;
+    }
+    footer {
+      text-align: center;
+      padding: 10px;
+      opacity: 0.6;
+      font-size: 12px;
+    }
+    .warn { color: #ffb703; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🌐 Global ERP Platform</h1>
+  <p>Inventory • POS • Accounting • Payments • Analytics</p>
+</header>
+
+<div class="container">
+
+  <!-- Inventory -->
+  <div class="card">
+    <h3>📦 Inventory Management</h3>
+    <input id="itemName" placeholder="Item Name" />
+    <input id="itemQty" type="number" placeholder="Quantity" />
+    <input id="itemLimit" type="number" placeholder="Low Stock Limit" />
+    <button onclick="addItem()">Add / Update</button>
+    <p id="invWarn" class="warn"></p>
+    <ul id="inventoryList"></ul>
+  </div>
+
+  <!-- POS -->
+  <div class="card">
+    <h3>🧾 POS (Demo)</h3>
+    <p>Connects to inventory & records sales.</p>
+    <button onclick="mockSale()">Simulate Sale</button>
+  </div>
+
+  <!-- Finance -->
+  <div class="card">
+    <h3>📊 Financial Reports</h3>
+    <button onclick="generatePnL()">Profit & Loss</button>
+    <button onclick="generateBS()">Balance Sheet</button>
+    <div id="financeOutput"></div>
+  </div>
+
+  <!-- Invoicing -->
+  <div class="card">
+    <h3>🧾 Quotations & Invoices</h3>
+    <button onclick="generateInvoice()">Generate Invoice</button>
+  </div>
+
+  <!-- Payments -->
+  <div class="card">
+    <h3>💳 Payment Gateway</h3>
+    <p>IPG integration placeholder</p>
+    <button onclick="alert('Integrate Stripe / Braintree / Bank IPG here')">Connect IPG</button>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 Gayan Gunasekara – Global ERP Solution
+</footer>
+
+<script>
+  /**
+   * FIX FOR @firebase/firestore ERROR
+   * --------------------------------
+   * Common causes:
+   * 1) App not deployed on http(s) (file:// blocks IndexedDB)
+   * 2) Placeholder Firebase config still used
+   * 3) Firestore not enabled in Firebase console
+   * 4) onSnapshot called before successful initialization
+   */
+
+  let db = null;
+
+  // 🔥 Firebase config (REQUIRED: replace with real keys)
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT",
+  };
+
+  function isValidConfig(cfg) {
+    return cfg && !Object.values(cfg).some(v => v.includes('YOUR_'));
+  }
+
+  try {
+    if (!isValidConfig(firebaseConfig)) {
+      throw new Error('Firebase config not set');
+    }
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    console.info('Firebase initialized');
+  } catch (e) {
+    console.error('Firebase init failed:', e.message);
+    document.getElementById('invWarn').innerText =
+      '⚠ Firebase not connected. Deploy on Netlify and add real Firebase keys.';
+  }
+
+  // Inventory
+  function addItem() {
+    if (!db) return alert('Firebase not connected');
+    const name = itemName.value.trim();
+    const qty = Number(itemQty.value);
+    const limit = Number(itemLimit.value);
+    if (!name || Number.isNaN(qty) || Number.isNaN(limit)) return;
+
+    db.collection('inventory').doc(name).set({ qty, limit })
+      .catch(err => console.error('Write failed', err));
+  }
+
+  // Safe realtime listener
+  if (db) {
+    db.collection('inventory').onSnapshot(snap => {
+      inventoryList.innerHTML = '';
+      snap.forEach(doc => {
+        const d = doc.data();
+        const li = document.createElement('li');
+        li.textContent = `${doc.id} : ${d.qty}`;
+        if (d.qty <= d.limit) {
+          li.style.color = 'orange';
+          sendLowStockAlert(doc.id);
+        }
+        inventoryList.appendChild(li);
+      });
+    }, err => {
+      console.error('onSnapshot error:', err);
+    });
+  }
+
+  function sendLowStockAlert(item) {
+    console.log('Low stock alert for', item);
+    // Netlify / Firebase Function hook
+  }
+
+  // POS
+  function mockSale() {
+    alert('Sale recorded (Demo)');
+  }
+
+  // Finance
+  function generatePnL() {
+    financeOutput.innerHTML = '<p>Revenue - Expenses = Profit</p>';
+  }
+  function generateBS() {
+    financeOutput.innerHTML = '<p>Assets = Liabilities + Equity</p>';
+  }
+
+  // Invoice
+  function generateInvoice() {
+    alert('Invoice PDF generation here');
+  }
+
+  // --- Basic runtime tests (non-intrusive) ---
+  console.assert(typeof addItem === 'function', 'addItem should exist');
+  console.assert(typeof mockSale === 'function', 'mockSale should exist');
+
+  gsap.from('.card', { opacity: 0, y: 40, stagger: 0.1 });
+</script>
+
+</body>
+</html>
