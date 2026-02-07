@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusERP | Global Business Management Solution</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --darker: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --card-bg: rgba(30, 41, 59, 0.85);
+            --sidebar-bg: rgba(15, 23, 42, 0.92);
+            --header-bg: rgba(30, 41, 59, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            --border-radius: 16px;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.25);
+            --3d-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            --pulse: 0 0 0 0 rgba(99, 102, 241, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-attachment: fixed;
+        }
+
+        /* 3D Background Animation */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .background div {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: float 15s infinite ease-in-out;
+            opacity: 0.3;
+        }
+
+        .background div:nth-child(1) {
+            width: 800px;
+            height: 800px;
+            background: var(--primary);
+            top: -200px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .background div:nth-child(2) {
+            width: 600px;
+            height: 600px;
+            background: var(--secondary);
+            bottom: -100px;
+            right: -50px;
+            animation-delay: -5s;
+        }
+
+        .background div:nth-child(3) {
+            width: 400px;
+            height: 400px;
+            background: var(--success);
+            bottom: 20%;
+            left: 10%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, 50px) scale(1.1); }
+            50% { transform: translate(0, 100px) scale(1); }
+            75% { transform: translate(-50px, 50px) scale(0.95); }
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--glass-border);
+            padding: 24px 0;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: var(--transition);
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .logo {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-right: 12px;
+            transform: rotate(-15deg);
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary), #fff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo-text span {
+            color: var(--light);
+            opacity: 0.7;
+        }
+
+        .nav-links {
+            padding: 0 12px;
+        }
+
+        .nav-title {
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            color: var(--gray);
+            padding: 16px 24px 8px;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            margin: 4px 0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            font-weight: 500;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.25);
+            border-left: 4px solid var(--primary);
+        }
+
+        .nav-item i {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .nav-item.active i {
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            transition: var(--transition);
+        }
+
+        /* Header */
+        .header {
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .search-bar {
+            position: relative;
+            width: 320px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px 12px 40px;
+            border-radius: 50px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid var(--glass-border);
+            color: var(--light);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            background: rgba(30, 41, 59, 0.9);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .notifications {
+            position: relative;
+            margin-right: 24px;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 20px;
+            height: 20px;
+            background: var(--danger);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* Dashboard Content */
+        .dashboard {
+            padding: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 32px;
+            background: linear-gradient(45deg, var(--light), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+
+        .page-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 70%);
+            z-index: 0;
+            transform: scale(0.8);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--3d-shadow);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-card:hover::before {
+            transform: scale(1.2);
+        }
+
+        .stat-card.danger:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(239, 68, 68, 0.4);
+        }
+
+        .stat-card.warning:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(245, 158, 11, 0.4);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-icon.primary {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+        }
+
+        .stat-icon.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .stat-icon.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .stat-icon.danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-trend.positive {
+            color: var(--success);
+        }
+
+        .stat-trend.negative {
+            color: var(--danger);
+        }
+
+        /* Charts & Tables */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-card, .table-card, .activity-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .chart-card:hover, .table-card:hover, .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--3d-shadow);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title i {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            font-size: 14px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            z-index: -1;
+            transition: var(--transition);
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+
+        .btn:hover::after {
+            transform: scaleX(1);
+        }
+
+        .btn-primary {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .btn-success:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .btn-warning:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .btn i {
+            margin-right: 6px;
+        }
+
+        .btn-animated {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-animated::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-animated:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Inventory Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        thead th {
+            text-align: left;
+            padding: 16px 12px;
+            font-weight: 600;
+            color: var(--gray);
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody td {
+            padding: 16px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--light);
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-in-stock {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .status-low-stock {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .status-out-of-stock {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        /* Activity Feed */
+        .activity-item {
+            display: flex;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.primary {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+        }
+
+        .activity-icon.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .activity-icon.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .activity-content h4 {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            font-size: 13px;
+            color: var(--gray);
+        }
+
+        /* 3D Elements */
+        .three-d-element {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .three-d-element:hover {
+            transform: rotateX(10deg) rotateY(-10deg) scale(1.03);
+        }
+
+        .three-d-element::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            z-index: -1;
+            border-radius: var(--border-radius);
+            transform: translateZ(-5px);
+        }
+
+        /* POS System Mockup */
+        .pos-system {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 32px;
+        }
+
+        .pos-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .pos-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 24px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 16px;
+        }
+
+        .product-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            background: rgba(30, 41, 59, 0.9);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .product-card::after {
+            content: '+';
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: var(--transition);
+        }
+
+        .product-card:hover::after {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 12px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-price {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .cart-section {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 16px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 32px;
+        }
+
+        .cart-items {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 8px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-total {
+            font-size: 24px;
+            font-weight: 800;
+            text-align: right;
+            margin: 20px 0;
+            padding-top: 16px;
+            border-top: 2px solid var(--glass-border);
+        }
+
+        /* Financial Reports */
+        .report-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .report-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--3d-shadow);
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .report-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .report-amount {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+
+        .report-period {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .report-trend {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .report-trend.positive {
+            color: var(--success);
+        }
+
+        .report-trend.negative {
+            color: var(--danger);
+        }
+
+        /* Copyright Footer */
+        .copyright {
+            text-align: center;
+            padding: 24px;
+            color: var(--gray);
+            font-size: 14px;
+            border-top: 1px solid var(--glass-border);
+            margin-top: 24px;
+            font-weight: 500;
+        }
+
+        .copyright span {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1100px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pos-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .cart-section {
+                position: relative;
+                top: 0;
+                margin-top: 24px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 80px;
+                padding: 24px 8px;
+            }
+            
+            .logo-text, .nav-title, .nav-text {
+                display: none;
+            }
+            
+            .logo {
+                padding: 0 16px 24px;
+                justify-content: center;
+            }
+            
+            .logo-icon {
+                margin-right: 0;
+            }
+            
+            .nav-item {
+                justify-content: center;
+                padding: 16px;
+            }
+            
+            .nav-item i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .search-bar {
+                width: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                padding: 16px;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .search-bar input {
+                width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                margin-bottom: 24px;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { box-shadow: var(--pulse); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: var(--pulse); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Chart Styling */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Notification Animation */
+        @keyframes notification {
+            0% { transform: translateX(100%) scale(0.8); opacity: 0; }
+            10% { transform: translateX(0) scale(1); opacity: 1; }
+            90% { transform: translateX(0) scale(1); opacity: 1; }
+            100% { transform: translateX(100%) scale(0.8); opacity: 0; }
+        }
+
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--danger);
+            border-radius: var(--border-radius);
+            padding: 16px 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            animation: notification 4s forwards;
+            display: none;
+        }
+
+        .notification.show {
+            display: flex;
+        }
+
+        .notification i {
+            font-size: 24px;
+            margin-right: 16px;
+            color: var(--danger);
+        }
+
+        .notification-content h4 {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .notification-content p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 3D Background -->
+    <div class="background">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="lowStockNotification">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div class="notification-content">
+            <h4>Low Stock Alert!</h4>
+            <p>Printer Paper is below minimum threshold. Reorder now to avoid stockout.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-cube logo-icon"></i>
+                <div class="logo-text">Nexus<span>ERP</span></div>
+            </div>
+            
+            <div class="nav-links">
+                <div class="nav-title">Main</div>
+                <div class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span class="nav-text">Dashboard</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-boxes"></i>
+                    <span class="nav-text">Inventory</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-cash-register"></i>
+                    <span class="nav-text">POS System</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span class="nav-text">Invoices</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="nav-text">Reports</span>
+                </div>
+                
+                <div class="nav-title">Management</div>
+                <div class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span class="nav-text">Customers</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="nav-text">Suppliers</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-truck"></i>
+                    <span class="nav-text">Logistics</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span class="nav-text">Settings</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search products, reports, customers...">
+                </div>
+                
+                <div class="user-section">
+                    <div class="notifications">
+                        <i class="fas fa-bell fa-lg"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="avatar">GG</div>
+                        <div>
+                            <div style="font-weight: 600;">Gayan Gunasekara</div>
+                            <div style="font-size: 13px; color: var(--gray);">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Dashboard Content -->
+            <div class="dashboard">
+                <h1 class="page-title">Dashboard</h1>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card three-d-element">
+                        <div class="stat-icon primary">
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                        <div class="stat-value">1,284</div>
+                        <div class="stat-label">Total Inventory Items</div>
+                        <div class="stat-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>12.5% from last month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card three-d-element">
+                        <div class="stat-icon success">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-value">$42,890</div>
+                        <div class="stat-label">Monthly Revenue</div>
+                        <div class="stat-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>8.3% from last month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card three-d-element warning">
+                        <div class="stat-icon warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-value">7</div>
+                        <div class="stat-label">Low Stock Items</div>
+                        <div class="stat-trend negative">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>3 items need reordering</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card three-d-element">
+                        <div class="stat-icon danger">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">Pending Invoices</div>
+                        <div class="stat-trend negative">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>5 overdue payments</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- POS System Mockup -->
+                <div class="pos-system three-d-element">
+                    <div class="pos-header">
+                        <h2 class="card-title"><i class="fas fa-cash-register"></i> POS System</h2>
+                        <div class="card-actions">
+                            <button class="btn btn-success btn-animated">
+                                <i class="fas fa-qrcode"></i> Scan Item
+                            </button>
+                            <button class="btn btn-primary btn-animated">
+                                <i class="fas fa-calculator"></i> Calculate
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="pos-grid">
+                        <div class="product-grid">
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <i class="fas fa-print"></i>
+                                </div>
+                                <div class="product-name">Printer Paper</div>
+                                <div class="product-price">$8.99</div>
+                            </div>
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <i class="fas fa-keyboard"></i>
+                                </div>
+                                <div class="product-name">Wireless Keyboard</div>
+                                <div class="product-price">$24.99</div>
+                            </div>
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <i class="fas fa-mouse"></i>
+                                </div>
+                                <div class="product-name">Gaming Mouse</div>
+                                <div class="product-price">$34.99</div>
+                            </div>
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <i class="fas fa-headphones"></i>
+                                </div>
+                                <div class="product-name">Headphones</div>
+                                <div class="product-price">$59.99</div>
+                            </div>
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <i class="fas fa-monitor"></i>
+                                </div>
+                                <div class="product-name">Monitor 24"</div>
+                                <div class="product-price">$199.99</div>
+                            </div>
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <i class="fas fa-laptop"></i>
+                                </div>
+                                <div class="product-name">Laptop Stand</div>
+                                <div class="product-price">$29.99</div>
+                            </div>
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <i class="fas fa-charging-station"></i>
+                                </div>
+                                <div class="product-name">USB Charger</div>
+                                <div class="product-price">$12.99</div>
+                            </div>
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <i class="fas fa-plug"></i>
+                                </div>
+                                <div class="product-name">Power Strip</div>
+                                <div class="product-price">$18.99</div>
+                            </div>
+                        </div>
+                        
+                        <div class="cart-section">
+                            <h3 style="margin-bottom: 20px; font-weight: 700;">Current Order</h3>
+                            <div class="cart-items">
+                                <div class="cart-item">
+                                    <div>
+                                        <div style="font-weight: 600;">Printer Paper</div>
+                                        <div style="color: var(--gray); font-size: 14px;">Qty: 5</div>
+                                    </div>
+                                    <div style="font-weight: 700;">$44.95</div>
+                                </div>
+                                <div class="cart-item">
+                                    <div>
+                                        <div style="font-weight: 600;">Wireless Keyboard</div>
+                                        <div style="color: var(--gray); font-size: 14px;">Qty: 2</div>
+                                    </div>
+                                    <div style="font-weight: 700;">$49.98</div>
+                                </div>
+                                <div class="cart-item">
+                                    <div>
+                                        <div style="font-weight: 600;">Gaming Mouse</div>
+                                        <div style="color: var(--gray); font-size: 14px;">Qty: 1</div>
+                                    </div>
+                                    <div style="font-weight: 700;">$34.99</div>
+                                </div>
+                            </div>
+                            <div class="cart-total">
+                                Total: $129.92
+                            </div>
+                            <button class="btn btn-primary btn-animated" style="width: 100%; padding: 14px; font-size: 18px;">
+                                <i class="fas fa-credit-card"></i> Process Payment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Inventory Table -->
+                    <div class="table-card three-d-element">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-boxes"></i> Inventory Management</h2>
+                            <div class="card-actions">
+                                <button class="btn btn-success btn-animated" id="addInventoryBtn">
+                                    <i class="fas fa-plus"></i> Add Item
+                                </button>
+                                <button class="btn btn-warning btn-animated">
+                                    <i class="fas fa-download"></i> Export
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Item ID</th>
+                                        <th>Product Name</th>
+                                        <th>Category</th>
+                                        <th>Stock</th>
+                                        <th>Min. Threshold</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>INV-1001</td>
+                                        <td>Printer Paper A4</td>
+                                        <td>Office Supplies</td>
+                                        <td>42</td>
+                                        <td>50</td>
+                                        <td><span class="status-badge status-low-stock">Low Stock</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>INV-1002</td>
+                                        <td>Wireless Keyboard</td>
+                                        <td>Electronics</td>
+                                        <td>18</td>
+                                        <td>15</td>
+                                        <td><span class="status-badge status-in-stock">In Stock</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>INV-1003</td>
+                                        <td>Gaming Mouse</td>
+                                        <td>Electronics</td>
+                                        <td>8</td>
+                                        <td>12</td>
+                                        <td><span class="status-badge status-low-stock">Low Stock</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>INV-1004</td>
+                                        <td>Office Chair</td>
+                                        <td>Furniture</td>
+                                        <td>3</td>
+                                        <td>5</td>
+                                        <td><span class="status-badge status-low-stock">Low Stock</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>INV-1005</td>
+                                        <td>Desk Lamp</td>
+                                        <td>Lighting</td>
+                                        <td>27</td>
+                                        <td>10</td>
+                                        <td><span class="status-badge status-in-stock">In Stock</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>INV-1006</td>
+                                        <td>USB-C Cable</td>
+                                        <td>Accessories</td>
+                                        <td>124</td>
+                                        <td>30</td>
+                                        <td><span class="status-badge status-in-stock">In Stock</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>INV-1007</td>
+                                        <td>Whiteboard</td>
+                                        <td>Office Supplies</td>
+                                        <td>2</td>
+                                        <td>5</td>
+                                        <td><span class="status-badge status-out-of-stock">Critical</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Activity Feed -->
+                    <div class="activity-card three-d-element">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-bell"></i> Recent Activity</h2>
+                            <button class="btn btn-sm btn-primary">View All</button>
+                        </div>
+                        
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon primary">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Inventory Updated</h4>
+                                    <p>Added 50 units of Printer Paper A4</p>
+                                    <div class="activity-time">Today, 10:24 AM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-icon success">
+                                    <i class="fas fa-cash-register"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Sale Completed</h4>
+                                    <p>POS transaction #POS-8892 for $129.92</p>
+                                    <div class="activity-time">Today, 9:45 AM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-icon warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Low Stock Alert</h4>
+                                    <p>Printer Paper A4 is below minimum threshold</p>
+                                    <div class="activity-time">Today, 9:30 AM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-icon primary">
+                                    <i class="fas fa-file-invoice"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Invoice Generated</h4>
+                                    <p>Invoice #INV-2023-8871 sent to TechSolutions Inc.</p>
+                                    <div class="activity-time">Yesterday, 4:15 PM</div>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-icon danger">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Shipment Delayed</h4>
+                                    <p>Order #ORD-7721 delayed due to weather conditions</p>
+                                    <div class="activity-time">Yesterday, 2:30 PM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Financial Reports -->
+                <h2 class="page-title" style="margin-top: 40px; font-size: 28px;">Financial Overview</h2>
+                
+                <div class="report-cards">
+                    <div class="report-card three-d-element">
+                        <div class="report-header">
+                            <div class="report-title">Profit & Loss</div>
+                            <i class="fas fa-chart-line" style="font-size: 24px; color: var(--primary);"></i>
+                        </div>
+                        <div class="report-amount">$18,450</div>
+                        <div class="report-period">Jan 1 - Jan 31, 2026</div>
+                        <div class="report-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>14.2% increase from previous month</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="profitChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="report-card three-d-element">
+                        <div class="report-header">
+                            <div class="report-title">Balance Sheet</div>
+                            <i class="fas fa-balance-scale" style="font-size: 24px; color: var(--success);"></i>
+                        </div>
+                        <div class="report-amount">$124,890</div>
+                        <div class="report-period">As of Jan 31, 2026</div>
+                        <div class="report-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>8.7% growth in assets</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="balanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Copyright Footer -->
+                <div class="copyright">
+                    &copy; 2026 NexusERP. All rights reserved. Developed with ❤️ by <span>Gayan Gunasekara</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Profit Chart
+            const profitCtx = document.getElementById('profitChart').getContext('2d');
+            const profitChart = new Chart(profitCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Profit',
+                        data: [12500, 13200, 11800, 14500, 15200, 16800, 17500, 18200, 19500, 21000, 19800, 22500],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#6366f1',
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Balance Chart
+            const balanceCtx = document.getElementById('balanceChart').getContext('2d');
+            const balanceChart = new Chart(balanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Assets',
+                        data: [110000, 115000, 118000, 120000, 122000, 124890],
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                        borderColor: '#10b981',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Show low stock notification after 2 seconds
+            setTimeout(() => {
+                document.getElementById('lowStockNotification').classList.add('show');
+            }, 2000);
+            
+            // Add inventory button functionality
+            document.getElementById('addInventoryBtn').addEventListener('click', function() {
+                alert('Add Inventory Item functionality would open a modal form in a real implementation.');
+            });
+            
+            // Sidebar navigation
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Simulate button animations
+            const animatedButtons = document.querySelectorAll('.btn-animated');
+            animatedButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
